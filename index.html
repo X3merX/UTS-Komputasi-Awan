@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Produk</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; }
+        h1 { color: #333; }
+        .btn { padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .btn:hover { background: #0056b3; }
+        .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .product-card { border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #f9f9f9; }
+        .product-card img { max-width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
+        .error-message { color: red; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Daftar Produk</h1>
+    <a href="upload_produk.html" class="btn">Upload Produk</a>
+</header>
+
+<section class="product-list" id="product-list">
+    <p class="error-message">Loading produk...</p>
+</section>
+
+<script>
+const API_BASE_URL = "http://52.221.225.228:3000"; // Ganti dengan IP/domain backend kamu
+
+async function loadProducts() {
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = "<p class='error-message'>Loading produk...</p>";
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/items`);
+        if (!res.ok) throw new Error('Gagal memuat produk');
+        const items = await res.json();
+
+        if (items.length === 0) {
+            productList.innerHTML = "<p class='error-message'>Tidak ada produk.</p>";
+            return;
+        }
+
+        productList.innerHTML = "";
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${item.imageUrl}" alt="${item.name}">
+                <h3>${item.name}</h3>
+                <p>Rp ${parseFloat(item.price).toLocaleString('id-ID')}</p>
+            `;
+            productList.appendChild(card);
+        });
+    } catch (err) {
+        productList.innerHTML = `<p class='error-message'>${err.message}</p>`;
+    }
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>
